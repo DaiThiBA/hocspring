@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -43,6 +44,9 @@ public class AuthenticationService {
 
     protected static final String SIGNER_KEY = 
     "deTMzWBYDgDR7h3WUHqEXpkkKZOaVWnSE+gkxFkK2rq7iDOJJYb29eEgPeUdkQA5";
+
+    // @Value("${jwt.signerKey}")
+    // private String SIGNER_KEY;
 
     
     public AuthenticationResponse authenticate(AuthenticationRequest authenticationRequest) {

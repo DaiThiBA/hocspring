@@ -5,6 +5,7 @@ import org.mapstruct.MappingTarget;
 
 import com.example.hocspring.dto.request.UserCreationRequest;
 import com.example.hocspring.dto.request.UserUpdationRequest;
+import com.example.hocspring.dto.response.UserResponse;
 import com.example.hocspring.entity.User;
 
 @Mapper(componentModel = "spring")
@@ -13,4 +14,5 @@ public interface UserMapper {
 
     void updateUser(@MappingTarget User user, UserUpdationRequest req);
 
+    UserResponse toUserResponse(User user);
 }

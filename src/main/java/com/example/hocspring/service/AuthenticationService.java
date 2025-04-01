@@ -4,15 +4,18 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.StringJoiner;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import com.example.hocspring.dto.request.AuthenticationRequest;
 import com.example.hocspring.dto.request.IntrospectRequest;
 import com.example.hocspring.dto.response.AuthenticationResponse;
 import com.example.hocspring.dto.response.IntrospectResponse;
+import com.example.hocspring.entity.User;
 import com.example.hocspring.exception.AppException;
 import com.example.hocspring.exception.ErrorCode;
 import com.example.hocspring.repository.UserRepository;
@@ -66,22 +69,22 @@ public class AuthenticationService {
 
         return AuthenticationResponse.builder()
                 .authenticated(isPasswordMatch)
-                .token(generateToken(authenticationRequest.getUsername()))
+                .token(generateToken(user))
                 .build();
     }
 
-    public String generateToken(String username){
+    public String generateToken(User user){
 
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
 
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-                                    .subject(username)
+                                    .subject(user.getUsername())
                                     .issuer("thiuit")
                                     .issueTime(new Date())
                                     .expirationTime(new Date(
                                         Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()
                                     ))
-                                    .claim("customClaim", "custom")
+                                    .claim("scope", buildScope(user))
                                     .build();
 
         Payload payload = new Payload(claimsSet.toJSONObject());
@@ -96,6 +99,17 @@ public class AuthenticationService {
             throw new RuntimeException(e);
         }
         
+    }
+
+    private String buildScope (User user) {
+
+        //các scope trong oauth2 được phân cách bởi dấu cách
+        //nên dùng StringJoiner để nối các scope lại với nhau
+        StringJoiner stringJoiner = new StringJoiner(" ");
+        if (!CollectionUtils.isEmpty(user.getRoles())) {
+            user.getRoles().forEach(stringJoiner::add);
+        }
+        return stringJoiner.toString();
     }
 
     public IntrospectResponse introspect (IntrospectRequest request) throws JOSEException, ParseException{

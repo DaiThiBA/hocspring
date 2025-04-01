@@ -1,27 +1,30 @@
 package com.example.hocspring.exception;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+
+import lombok.Getter;
+
+@Getter
 public enum ErrorCode {
 
-    UNCATEGORIZED_ERROR(9999, "Uncategorized error"),
-    USER_EXISTED(1001, "User existed"),
-    INVALID_PASSWORD(1002,"Password must be atleast 8 character"),
-    USER_NOT_FOUND(1003, "User not found"),
-    INVALID_USERNAME(1004,"Username must be atleast 3 character"),
-    INVALID_ERROR_CODE(9000, "Invalide enum key")
+    UNCATEGORIZED_ERROR(9999, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR),
+    USER_EXISTED(1001, "User existed",HttpStatus.BAD_REQUEST),
+    INVALID_PASSWORD(1002,"Password must be atleast 8 character", HttpStatus.BAD_REQUEST),
+    USER_NOT_FOUND(1003, "User not found", HttpStatus.NOT_FOUND ),
+    INVALID_USERNAME(1004,"Username must be atleast 3 character", HttpStatus.BAD_REQUEST),
+    INVALID_ERROR_CODE(9000, "Invalide enum key", HttpStatus.BAD_REQUEST),
+    UNAUTHENTICATED(1006, "Unauthenticated", HttpStatus.UNAUTHORIZED),
+    UNAUTHORIZED(1007, "Unauthorized", HttpStatus.FORBIDDEN),//theo chuẩn của http (nên hơi confuse)
     ;
-    int code;
-    String message;
+    private int code;
+    private String message;
+    private HttpStatusCode statusCode;
     
-    private ErrorCode(int code, String message) {
+    private ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;
         this.message = message;
+        this.statusCode = statusCode;
     }
-    public int getCode() {
-        return code;
-    }
-    public String getMessage() {
-        return message;
-    }
-
 
 }

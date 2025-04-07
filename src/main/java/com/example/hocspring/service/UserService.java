@@ -2,16 +2,11 @@ package com.example.hocspring.service;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import org.aspectj.apache.bcel.classfile.annotation.RuntimeTypeAnnos;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
 
 import com.example.hocspring.dto.request.UserCreationRequest;
 import com.example.hocspring.dto.request.UserUpdationRequest;
@@ -22,6 +17,7 @@ import com.example.hocspring.enums.Role;
 import com.example.hocspring.exception.AppException;
 import com.example.hocspring.exception.ErrorCode;
 import com.example.hocspring.mapper.UserMapper;
+import com.example.hocspring.repository.RoleRepository;
 import com.example.hocspring.repository.UserRepository;
 
 import lombok.AccessLevel;
@@ -41,7 +37,12 @@ public class UserService {
 
     UserMapper userMapper;
 
-    @PreAuthorize("hasRole('ADMIN')")
+    PasswordEncoder passwordEncoder;
+
+    RoleRepository  roleRepository;
+
+    //@PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('APPROVE_POST')")
     public ApiResponse<List<UserResponse>> getAllUsers() {
 
         log.info("In method getAllUsers()");
@@ -64,14 +65,14 @@ public class UserService {
 
         user = userMapper.toUser(request);
 
-        //hash password: dùng phương thức encode của PasswordEncoder
-        PasswordEncoder encoder = new BCryptPasswordEncoder(10);
+    
+    
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        user.setPassword(encoder.encode(request.getPassword()));
 
         HashSet<String> roles = new HashSet<>();
         roles.add(Role.USER.name());
-        user.setRoles(roles);
+        //user.setRoles(roles);
 
         //var result = userMapper.toUser(request);
 
@@ -101,11 +102,21 @@ public class UserService {
 
     }
 
-    public User updatUser (UserUpdationRequest request){
+    public User updateUser (String userId, UserUpdationRequest request){
 
-        User user = new User();
+        User user = userRepository.findById(userId)
+        .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         userMapper.updateUser(user, request);
+
+
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        var roles = roleRepository.findAllById(request.getRoles());
+
+        user.setRoles(new HashSet<>(roles));
+
+
         return userRepository.save(user);
     }
 

@@ -64,8 +64,8 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
-    public User updateUser(@RequestBody UserUpdationRequest req) {
-        return userService.updatUser(req);
+    public User updateUser(@PathVariable("userId") String userId, @RequestBody UserUpdationRequest req) {
+        return userService.updateUser(userId ,req);
     }
 
     @DeleteMapping("/{userId}")
@@ -75,5 +75,4 @@ public class UserController {
         return "User data deleted successfully";
     }
     
-
 }

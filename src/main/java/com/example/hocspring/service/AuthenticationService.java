@@ -102,14 +102,28 @@ public class AuthenticationService {
     }
 
     private String buildScope (User user) {
-
         //các scope trong oauth2 được phân cách bởi dấu cách
         //nên dùng StringJoiner để nối các scope lại với nhau
         StringJoiner stringJoiner = new StringJoiner(" ");
+        
         if (!CollectionUtils.isEmpty(user.getRoles())) {
-            user.getRoles().forEach(stringJoiner::add);
+            user.getRoles().forEach(role -> {
+                log.info("Role: {}", role.getName());
+                stringJoiner.add( "ROLE_" + role.getName());
+                if(!CollectionUtils.isEmpty(role.getPermissions())) {
+                    role.getPermissions().forEach(permission -> {
+                        log.info("Permission: {}", permission.getName());
+                        stringJoiner.add(permission.getName());
+                    });
+                }
+            });
+        } else {
+            log.warn("User has no roles");
         }
-        return stringJoiner.toString();
+    
+        String scope = stringJoiner.toString();
+        log.info("Generated scope: {}", scope);
+        return scope;
     }
 
     public IntrospectResponse introspect (IntrospectRequest request) throws JOSEException, ParseException{

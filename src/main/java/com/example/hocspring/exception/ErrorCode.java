@@ -16,6 +16,7 @@ public enum ErrorCode {
     INVALID_ERROR_CODE(9000, "Invalide enum key", HttpStatus.BAD_REQUEST),
     UNAUTHENTICATED(1006, "Unauthenticated", HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED(1007, "Unauthorized", HttpStatus.FORBIDDEN),//theo chuẩn của http (nên hơi confuse)
+    INVALID_DOB(1008, "Invalid Date of Birth", HttpStatus.BAD_REQUEST),
     ;
     private int code;
     private String message;

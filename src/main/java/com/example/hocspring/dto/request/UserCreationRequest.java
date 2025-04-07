@@ -3,6 +3,8 @@ package com.example.hocspring.dto.request;
 import java.time.LocalDate;
 import java.util.Set;
 
+import com.example.hocspring.validator.DobContraints;
+
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -24,6 +26,8 @@ public class UserCreationRequest {
     String password;
     String firstName;
     String lastName;
+
+    @DobContraints(min = 2, message = "INVALID_DOB")
     LocalDate dob;
     Set<String> roles;
 }
